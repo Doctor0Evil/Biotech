@@ -1,6 +1,8 @@
 mod security;
 mod civic_profile;
+mod civic_audit;
 
+use civic_audit::{CivicAuditEntry, append_civic_audit_entry};
 use civic_profile::CivicRewardProfile;
 // ... existing imports ...
 
