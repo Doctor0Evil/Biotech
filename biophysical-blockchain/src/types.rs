@@ -1,76 +1,66 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use crate::types::{EcoBand, EcoBandProfile, LifeforceBand, LifeforceBandSeries};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct PerHostCapacityEnvelope {
-    pub host_id: String,
-    pub brain_min: f64,
-    pub brain_max: f64,
-    pub wave_min: f64,
-    pub wave_max: f64,
-    pub blood_min: f64,
-    pub blood_max: f64,
-    pub oxygen_min: f64,
-    pub oxygen_max: f64,
-    pub nano_min: f64,
-    pub nano_max: f64,
-    pub smart_min: f64,
-    pub smart_max: f64,
-    /// Safe fractions relative to max, for procedures.
-    pub max_wave_fraction: f64,
-    pub max_nano_fraction: f64,
-    pub max_smart_fraction: f64,
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum LifeforceBand {
+    Safe,
+    SoftWarn,
+    HardStop,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SystemAdjustment {
+pub struct LifeforceSample {
     pub ts_utc: DateTime<Utc>,
-    pub reason: String,
-    pub delta_brain: f64,
-    pub delta_wave: f64,
-    pub delta_blood: f64,
-    pub delta_oxygen: f64,
-    pub delta_nano: f64,
-    pub delta_smart: f64,
-    pub eco_cost_flops: f64,
+    pub lifeforce_l: f32,           // [0.0, 1.0]
+    pub band: LifeforceBand,
+    pub blood_level: f32,          // normalized BLOOD proxy
+    pub oxygen_level: f32,         // normalized OXYGEN proxy
+    pub clarity_index: f32,        // normalized cognitive clarity
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct LifeforceBandSeries {
+    pub host_id: String,
+    pub samples: Vec<LifeforceSample>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SafetyCurveWave {
+    pub host_id: String,
+    /// max WAVE as fraction of current BRAIN for given fatigue level.
+    pub max_wave_factor: f32,
+    pub fatigue_decay: f32,
+}
+
+impl SafetyCurveWave {
+    pub fn safe_wave_ceiling(&self, brain: f64, fatigue: f64) -> f64 {
+        let f = (1.0 - fatigue.max(0.0).min(1.0) * self.fatigue_decay as f64)
+            * self.max_wave_factor as f64;
+        (brain * f).max(0.0)
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub enum NanoRouteDecision {
-    Safe,
-    Defer,
-    Deny,
+pub enum EcoBand {
+    Low,
+    Medium,
+    High,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct NanoLifebandRouter {
+pub struct EcoBandProfile {
     pub host_id: String,
+    pub avg_flops: f64,
+    pub avg_nj: f64,
+    pub eco_band: EcoBand,
 }
 
-impl NanoLifebandRouter {
-    pub fn classify(
-        &self,
-        lifeband: &LifeforceBand,
-        clarity: f32,
-        eco: &EcoBand,
-    ) -> NanoRouteDecision {
-        match lifeband {
-            LifeforceBand::HardStop => NanoRouteDecision::Deny,
-            LifeforceBand::SoftWarn => {
-                if clarity < 0.5 || matches!(eco, EcoBand::High) {
-                    NanoRouteDecision::Defer
-                } else {
-                    NanoRouteDecision::Safe
-                }
-            }
-            LifeforceBand::Safe => {
-                if clarity < 0.3 || matches!(eco, EcoBand::High) {
-                    NanoRouteDecision::Defer
-                } else {
-                    NanoRouteDecision::Safe
-                }
-            }
+impl EcoBandProfile {
+    pub fn econeutral_brain_required(&self, state_brain: f64) -> f64 {
+        match self.eco_band {
+            EcoBand::Low => state_brain * 0.1,
+            EcoBand::Medium => state_brain * 0.2,
+            EcoBand::High => state_brain * 0.3,
         }
     }
 }
