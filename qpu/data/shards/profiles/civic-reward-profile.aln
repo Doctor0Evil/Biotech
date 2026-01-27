@@ -1,0 +1,71 @@
+# file: qpu/data/shards/profiles/civic-reward-profile.aln
+
+version         1.0
+schema          biospectre.civicrewardprofile
+hostid          bostrom18sd2ujv24ual9c9pshtxys6j8knh6xaead9ye7
+session_utc     2026-01-27T18:45:00Z
+
+civic_profile
+  mode                inner-only              # no DeFi, no external tokenization
+  financialization    false                   # non-financial, non-transferable
+  bridge_enabled      false
+  staking_enabled     false
+
+  # Global constraints: keep civic multipliers bounded and eco-safe.
+  multiplier_min      0.0
+  multiplier_max      4.0
+  default_multiplier  1.0
+
+  # Knowledge factor floor for reward-eligible events.
+  required_knowledge_factor  0.60
+
+  # Heroic acts: life-risking or high-impact civic actions.
+  heroic_tags
+    - disaster-response
+    - life-saving
+    - emergency-medicine
+    - critical-infrastructure-protection
+    - wildfire-containment
+    - flood-rescue
+    - epidemic-frontline
+
+  heroic_multiplier   3.0
+
+  # Good deeds: sustained civic contribution, public benefit, open knowledge.
+  good_tags
+    - civic-duty
+    - teaching
+    - mentorship
+    - public-health
+    - open-science
+    - volunteering
+    - community-organizing
+    - disaster-preparedness-training
+
+  good_multiplier     1.5
+
+  # Neutral: everything not explicitly heroic/good/disallowed.
+  neutral_multiplier  1.0
+
+  # Disallowed: never reward, always block.
+  disallowed_tags
+    - coercive
+    - exploitative
+    - hate
+    - warfare-offense
+    - surveillance-nonconsensual
+    - biological-weaponization
+    - lifeforce-extraction
+    - financialization-of-souls
+
+  # Optional eco alignment: extra scaling when eco-cost is low.
+  eco_bonus
+    enabled           true
+    low_eco_threshold  1000.0      # FLOPs or nJ per event
+    low_eco_bonus       1.25       # up to 25% extra within multiplier_max
+
+audit
+  provenance_proofhex 0xC1V1C-R3W4RD-PROFILE-27JAN26
+  author_role         augmented-citizen
+  governance_labels   ALN,KYC,DID
+  notes               "Host-local civic reward semantics; no ownership of souls, no tradable value."
