@@ -1,6 +1,49 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use crate::types::{EcoBand, EcoBandProfile, LifeforceBand, LifeforceBandSeries};
+use crate::lifeforce_rads::enforce_rads_evolve_scale_guards;
+
+impl InnerLedger {
+    pub fn system_apply_with_rads(
+        &mut self,
+        idheader: IdentityHeader,
+        requiredk: f32,
+        mut adj: SystemAdjustment,
+        timestamputc: &str,
+        rads_pressure: f64,
+        evolve_capacity: f64,
+        scale_ceiling: f64,
+    ) -> Result<LedgerEvent, InnerLedgerError> {
+        // 1. Identity guard (unchanged).
+        validate_identity_for_inner_ledger(idheader.clone(), requiredk)?;
+
+        // 2. RADS guard — cannot exceed EVOLVE or SCALE, cannot drain lifeforce.
+        enforce_rads_evolve_scale_guards(
+            &self.state,
+            &self.env,
+            &adj,
+            rads_pressure,
+            evolve_capacity,
+            scale_ceiling,
+        ).map_err(InnerLedgerError::Rads)?;
+
+        // 3. Lifeforce + eco invariants (existing logic).
+        apply_lifeforce_guarded_adjustment(&mut self.state, self.env.clone(), adj.clone())?;
+
+        // 4. Hash + event commit (existing).
+        let newhash = hash_state(self.env.hostid.clone(), self.env.clone(), self.state.clone());
+        let event = LedgerEvent {
+            hostid: self.env.hostid.clone(),
+            prevstatehash: self.laststatehash.clone(),
+            newstatehash: newhash.clone(),
+            adjustment: adj,
+            timestamputc: timestamputc.to_string(),
+            attestedby: idheader.issuerdid.clone(),
+        };
+        self.laststatehash = newhash;
+        Ok(event)
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PerHostCapacityEnvelope {
