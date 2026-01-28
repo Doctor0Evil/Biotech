@@ -1,0 +1,150 @@
+{
+  "$schema": "https://aln-specs.example.org/schemas/biophysical-host-profile-v1.json",
+  "host_did": "bostrom18sd2ujv24ual9c9pshtxys6j8knh6xaead9ye7",
+  "version": "v1.0.0",
+  "governance": {
+    "data_ownership": {
+      "biophysical_data_host_bound": true,
+      "non_financial_tokens": true,
+      "transfer_functions_present": false,
+      "stake_functions_present": false,
+      "trade_functions_present": false,
+      "description": "All biosignals and biophysical tokens are host-local, non-financial, and cannot be transferred, staked, or traded."
+    },
+    "anti_capture": {
+      "symmetric_limits": true,
+      "special_exemptions_allowed": false,
+      "may_gate_neural_functionality": false,
+      "may_require_subscription_for_core_access": false,
+      "description": "Authors, maintainers, platforms, and regulators obey the same safety and non-financial rules as this host; no privileged override is allowed."
+    },
+    "roles_and_access": {
+      "eligible_roles": [
+        "AugmentedCitizen",
+        "AuthorizedResearcher",
+        "SystemDaemon"
+      ],
+      "admission_criteria": {
+        "knowledge_factor_min": 0.3,
+        "ethics_alignment_required": true,
+        "capital_required": false,
+        "affiliation_required": false
+      },
+      "role_semantics": "Roles grant responsibilities (e.g., proposing changes or conducting research), not hierarchy. No role may bypass host consent or safety invariants."
+    }
+  },
+  "tokens": {
+    "brain": {
+      "range": [0.0, 1.0],
+      "financial": false,
+      "transferable": false,
+      "governed_by": "host",
+      "description": "Cognitive/learning capacity and history for this host only."
+    },
+    "wave": {
+      "range": [0.0, 1.0],
+      "financial": false,
+      "transferable": false,
+      "governed_by": "host",
+      "description": "Workload safety and neurorights envelope for this host."
+    },
+    "blood": {
+      "range": [0.0, 1.0],
+      "financial": false,
+      "transferable": false,
+      "hard_floor": 0.20,
+      "description": "Lifeforce guardrail; cannot be reduced below hard_floor by any evolution or adjustment pipeline."
+    },
+    "oxygen": {
+      "range": [0.0, 1.0],
+      "financial": false,
+      "transferable": false,
+      "hard_floor": 0.20,
+      "description": "Oxygen/lifeforce guardrail; cannot be reduced below hard_floor by any evolution or adjustment pipeline."
+    },
+    "nano": {
+      "range": [0.0, 1.0],
+      "financial": false,
+      "transferable": false,
+      "description": "Nanotech/augmentation envelope, strictly host-local."
+    },
+    "smart": {
+      "range": [0.0, 1.0],
+      "financial": false,
+      "transferable": false,
+      "description": "SMART autonomy band (0 = off, 1 = full autonomy); changes require explicit consent."
+    },
+    "evolve": {
+      "range": [0.0, 1.0],
+      "financial": false,
+      "transferable": false,
+      "bridge_functions_present": false,
+      "derived_only": true,
+      "derived_from": [
+        "brain_history",
+        "wave_safe_workloads",
+        "eco_participation"
+      ],
+      "description": "Per-host evolution metric; cannot be bought, sold, bridged, or used as an external compliance score."
+    }
+  },
+  "pain_and_intensity": {
+    "per_host_only": true,
+    "exportable_as_default": false,
+    "profile": {
+      "preferred_pain_upper_band": 0.80,
+      "desired_stress_band": 0.75,
+      "allow_high_pain_training": true,
+      "description": "This host prefers high challenge and higher pain tolerance within safety limits. These settings are strictly local and must never be used as defaults or recommendations for other hosts."
+    },
+    "safety": {
+      "lifeforce_bands": [
+        "Safe",
+        "SoftWarn",
+        "HardStop"
+      ],
+      "no_cross_host_cost": true,
+      "rule": "No negative externalization of cost to other hosts’ lifeforce or eco budgets; all upgrade costs must be paid from this host’s own envelopes and eco budgets."
+    }
+  },
+  "consent_and_identity": {
+    "identity_required_for_mutation": true,
+    "identity_header_fields": [
+      "issuer_did",
+      "subject_role",
+      "network_tier",
+      "knowledge_factor"
+    ],
+    "allowed_mutation_roles": [
+      "AugmentedCitizen",
+      "AuthorizedResearcher",
+      "SystemDaemon"
+    ],
+    "allowed_network_tiers": [
+      "Trusted"
+    ],
+    "demonstrated_consent_required_for": [
+      "AdjustPainProfile",
+      "AdjustSmartAutonomy",
+      "ApplyEvolutionUpgrade"
+    ],
+    "consent_semantics": "All evolution upgrades, SMART autonomy changes, and high-risk changes to pain thresholds or augmentation scope must present a valid DemonstratedConsentShard + ConsentProof. Runtime must hard-fail if consent does not match the requested action."
+  },
+  "anti_oligarchy": {
+    "no_platform_capture": true,
+    "no_regulatory_capture": true,
+    "rules": [
+      "No actor may seize, collateralize, or re-route this host’s biophysical tokens.",
+      "No actor may gate core neural functionality or basic access to biophysical data behind payment or subscription.",
+      "No actor may create privileged override paths; all must obey the same invariants and consent requirements."
+    ]
+  },
+  "ai_chat_boundary": {
+    "raw_inner_state_exposed": false,
+    "allowed_interfaces": [
+      "BoundaryAPI.SystemAdjustmentProposal",
+      "BoundaryAPI.HostSummary"
+    ],
+    "description": "AI chats and external services may only access redacted summaries and submit typed SystemAdjustment proposals. Inner ledger state and raw biophysical data are never exposed."
+  }
+}
