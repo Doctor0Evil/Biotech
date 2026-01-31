@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "biophysical-blockchain",
+  "bci-ledger-service",
+  "civic-doctrine-lint",
+]
+resolver = "2"
