@@ -42,17 +42,31 @@ impl LifeforceMutator for InnerLedger {
     ) -> Result<(), LifeforceError> {
         let mut next = state.clone();
 
-        next.brain += adj.deltabrain;
-        next.wave += adj.deltawave;
-        next.nano += adj.deltanano;
-        next.smart += adj.deltasmart;
+next.brain += adj.deltabrain;
+next.wave += adj.deltawave;
+next.nano += adj.deltanano;
+next.smart += adj.deltasmart;
 
-        if next.brain < env.brainmin
-            || next.blood < env.bloodmin
-            || next.oxygen < env.oxygenmin
-        {
-            return Err(LifeforceError::Invariant);
-        }
+// Hard lifeforce floors
+if next.brain < self.env.brainmin
+    || next.blood < self.env.bloodmin
+    || next.oxygen < self.env.oxygenmin
+{
+    return Err(LifeforceError::Invariant);
+}
+
+// Nano / SMART envelopes
+if next.nano > self.env.nanomaxfraction
+    || next.smart > self.env.smartmax
+{
+    return Err(LifeforceError::Invariant);
+}
+
+// Eco budget
+if adj.ecocost > self.env.ecoflopslimit {
+    return Err(LifeforceError::Eco);
+}
+
 
         if next.nano > env.nanomaxfraction
             || next.smart > env.smartmax
