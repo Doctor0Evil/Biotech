@@ -26,9 +26,21 @@ fn run_lints(root: &Path) -> Result<()> {
         .filter(|e| e.file_type().is_file())
     {
         let path = entry.path();
+
+        if path.components().any(|c| {
+            if let std::path::Component::Normal(s) = c {
+                s == "target" || s == ".git"
+            } else {
+                false
+            }
+        }) {
+            continue;
+        }
+
         if !is_rust_source(path) {
             continue;
         }
+
         let contents = fs::read_to_string(path)?;
         for re in &forbidden {
             if re.is_match(&contents) {
