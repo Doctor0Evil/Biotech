@@ -1,0 +1,11 @@
+[package]
+name = "cybernano-viability-kernel"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Runtime viability kernel checks for sovereign cyberswarms (Ax <= b over 8D biophysical microspace)."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+thiserror = "1"
