@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "crates/cybernano-viability-kernel",
+  "crates/cybernano-vector-cyberrank",
+]
+resolver = "2"
