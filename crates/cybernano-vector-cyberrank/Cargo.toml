@@ -1,0 +1,10 @@
+[package]
+name = "cybernano-vector-cyberrank"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "CyberRank multi-axis scoring and Tsafe action selection for sovereign cyberswarms."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
